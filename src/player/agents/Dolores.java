@@ -143,7 +143,7 @@ public class Dolores extends Agent {
         int nMoves = board.getAllLegalPositions(myColor).size();
         int nCorners = countCorners(board);
 
-        return nMyDisks + nMoves + nCorners;
+        return 5*nMyDisks + 10*nMoves + 500*nCorners;
     }
 
     private int countCorners(GameBoard board) {
