@@ -2,7 +2,7 @@
 
 ## Kom igång
 Du måste ha Java8 installerat på din dator
-(Om du vill bygga/köra med maven så skall du även installera det)
+(Om du vill bygga/köra med maven så skall du även installera det - https://maven.apache.org/download.cgi)
 
 ### Eclipse
 1. Checka ut koden
@@ -21,12 +21,14 @@ Du måste ha Java8 installerat på din dator
 4. Högerklick på src/main/Othello.java -> Run Othello.main()
 
 ### Bygga/köra med maven
-1. Ställ dig i katalogen dit du klonat koden (filen pom.xml finns i denna katalog)
-2. Bygg och skapa jar-filen
+1. Checka ut koden
+```git clone https://github.com/Omegapoint/othello.git```
+2. Ställ dig (med cd) i katalogen dit du klonat koden (filen pom.xml finns i denna katalog)
+3. Bygg och skapa jar-filen
 ```mvn clean install```
-3. Kör igång applikationen
+4. Du kan antingen köra applikationen från jar-filen
 ```java -jar target/othello-1.0-SNAPSHOT.jar```
-eller med
+5. ...eller köra det direkt från maven
 ```mvn exec:java -Dexec.mainClass=main.Othello```
 
 ## Bygga en robot
