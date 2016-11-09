@@ -9,7 +9,7 @@ Du måste ha Java8 installerat på din dator
 ```git clone https://github.com/Omegapoint/othello.git```
 2. File -> New... -> Java Project
   * Project name: othello
-  * Location: (där du klonade ut koden)
+  * Klicka ur "Use default location" och ange istället katalogen där du klonade ut koden
   * Finish
 3. Högerklick på src/main/Othello.java -> Run as -> Java Application
 
@@ -17,7 +17,7 @@ Du måste ha Java8 installerat på din dator
 1. Checka ut koden
 ```git clone https://github.com/Omegapoint/othello.git```
 2. New -> Project from existing sources -> (välj pom.xml-filen där du klonade koden)
-3. Next -> Next -> Next -> Next -> Next -> Finish
+3. Next -> ... -> Next -> Finish
 4. Högerklick på src/main/Othello.java -> Run Othello.main()
 
 ### Bygga/köra med maven
