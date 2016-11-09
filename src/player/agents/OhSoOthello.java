@@ -7,7 +7,7 @@ import player.Agent;
 
 import java.util.LinkedList;
 
-public class Bjaerta extends Agent {
+public class OhSoOthello extends Agent {
 
     private static final int[][] EVALUATION_MATRIX = {
         {0, 0, 3, 1, 1, 3, 0, 0},
@@ -20,17 +20,24 @@ public class Bjaerta extends Agent {
         {0, 0, 3, 1, 1, 3, 0, 0}
     };
 
-    public Bjaerta(Color color) {
+    public OhSoOthello(Color color) {
         super(color);
     }
 
     @Override
     public void newGame() {
-
+        // do nothing
     }
 
     @Override
     public Position nextMove(GameBoard board, LinkedList<Position> currentLegalPositions) throws InterruptedException {
-        return null;
+        return currentLegalPositions.stream().reduce(null, (accumulated, position1) -> evaluate(accumulated) < evaluate(position1) ? position1 : accumulated);
+    }
+
+    private int evaluate(Position position) {
+        if (position == null) {
+            return 0;
+        }
+        return EVALUATION_MATRIX[position.row][position.column];
     }
 }
