@@ -3,6 +3,7 @@ package player.agents;
 import game.Color;
 import game.GameBoard;
 import game.Position;
+import javafx.geometry.Pos;
 import player.Agent;
 
 import java.util.HashSet;
@@ -12,10 +13,51 @@ import java.util.Random;
 public class Mitbot extends Agent{
     private int size;
     private Random r;
-    private HashSet<Position> stables;
+    private HashSet<WrapPosition> stables;
 
     public Mitbot(Color color) {
         super(color);
+    }
+
+    class WrapPosition {
+        public int row, column;
+
+        public WrapPosition(int row, int column){
+            this.row = row;
+            this.column = column;
+        }
+
+        public boolean equalsPos(Position pos) {
+            return (row == pos.row && column == pos.column);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o != null && o.getClass() == Position.class) return equalsPos((Position) o);
+            if (o == null || getClass() != o.getClass()) return false;
+
+            WrapPosition that = (WrapPosition) o;
+
+            if (row != that.row) return false;
+            return column == that.column;
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = row;
+            result = 31 * result + column;
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "WrapPosition{" +
+                    "row=" + row +
+                    ", column=" + column +
+                    '}';
+        }
     }
 
     /**
@@ -27,11 +69,15 @@ public class Mitbot extends Agent{
         size = 8;
         stables = new HashSet<>();
         for (int i = -1; i < size+1; i++) {
-            stables.add(new Position(-1, i));
-            stables.add(new Position(size+1, i));
-            stables.add(new Position(i, -1));
-            stables.add(new Position(i, size +1));
+            stables.add(new WrapPosition(-1, i));
+            stables.add(new WrapPosition(size, i));
+            stables.add(new WrapPosition(i, -1));
+            stables.add(new WrapPosition(i, size));
         }
+        for(WrapPosition p : stables) {
+          //  System.out.println(p.toString());
+        }
+        //System.out.println("stable size after creation: " + stables.size());
     }
 
     /**
@@ -50,9 +96,11 @@ public class Mitbot extends Agent{
     @Override
     public Position nextMove(GameBoard board, LinkedList<Position> currentLegalPositions) throws InterruptedException {
 
+        updateStables(board);
         for (Position p: currentLegalPositions) {
-            if(stable(p)){
-                stables.add(p);
+            if(stable(new WrapPosition(p.row,p.column))){
+                //System.out.println("Found stable position when doing next move\nrow: " + p.row + " col: " + p.column);
+                stables.add(new WrapPosition(p.row,p.column));
                 return p;
             }
         }
@@ -61,45 +109,69 @@ public class Mitbot extends Agent{
         return currentLegalPositions.get(i);
     }
 
-    private boolean stable(Position p) {
+    private void updateStables(GameBoard board) {
+        WrapPosition p;
+        boolean added = true;
+        Color c[][] = board.getBoardMatrix();
+        while (added) {
+            added = false;
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    if (!stables.contains(p = new WrapPosition(i, j)) && (c[i][j] == color) && stable(p)) {
+                        stables.add(p);
+                        //System.out.println("Found stable position while checking board\nrow: " + p.row + " col: " + p.column);
+                        added = true;
+                        break;
+                    }
+                    if(added) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean stable(WrapPosition p) {
+
         if(isCorner(p)){
+            //System.out.println("found corner!");
             return true;
         }
-        if(stables.contains(new Position(p.row -1 ,p.column - 1))) {
-            if(stables.contains(new Position(p.row,p.column-1)) &&
-                    stables.contains(new Position(p.row-1, p.column))){
-                if(stables.contains(new Position(p.row -1, p.column +1)) ||
-                        stables.contains(new Position(p.row +1, p.column -1))){
+        if(stables.contains(new WrapPosition(p.row -1 ,p.column - 1))) {
+            if(stables.contains(new WrapPosition(p.row,p.column-1)) &&
+                    stables.contains(new WrapPosition(p.row-1, p.column))){
+                if(stables.contains(new WrapPosition(p.row -1, p.column +1)) ||
+                        stables.contains(new WrapPosition(p.row +1, p.column -1))){
                     return true;
                 }
             }
         }
 
-        if(stables.contains(new Position(p.row -1 ,p.column + 1))) {
-            if(stables.contains(new Position(p.row,p.column+1)) &&
-                    stables.contains(new Position(p.row-1, p.column))){
-                if(stables.contains(new Position(p.row -1, p.column -1)) ||
-                        stables.contains(new Position(p.row +1, p.column +1))){
+        if(stables.contains(new WrapPosition(p.row -1 ,p.column + 1))) {
+            if(stables.contains(new WrapPosition(p.row,p.column+1)) &&
+                    stables.contains(new WrapPosition(p.row-1, p.column))){
+                if(stables.contains(new WrapPosition(p.row -1, p.column -1)) ||
+                        stables.contains(new WrapPosition(p.row +1, p.column +1))){
                     return true;
                 }
             }
         }
 
-        if(stables.contains(new Position(p.row + 1 ,p.column - 1))) {
-            if(stables.contains(new Position(p.row,p.column-1)) &&
-                    stables.contains(new Position(p.row+1, p.column))){
-                if(stables.contains(new Position(p.row -1, p.column -1)) ||
-                        stables.contains(new Position(p.row +1, p.column +1))){
+        if(stables.contains(new WrapPosition(p.row + 1 ,p.column - 1))) {
+            if(stables.contains(new WrapPosition(p.row,p.column-1)) &&
+                    stables.contains(new WrapPosition(p.row+1, p.column))){
+                if(stables.contains(new WrapPosition(p.row -1, p.column -1)) ||
+                        stables.contains(new WrapPosition(p.row +1, p.column +1))){
                     return true;
                 }
             }
         }
 
-        if(stables.contains(new Position(p.row +1 ,p.column + 1))) {
-            if(stables.contains(new Position(p.row,p.column+1)) &&
-                    stables.contains(new Position(p.row+1, p.column))){
-                if(stables.contains(new Position(p.row -1, p.column +1)) ||
-                        stables.contains(new Position(p.row +1, p.column -1))){
+        if(stables.contains(new WrapPosition(p.row +1 ,p.column + 1))) {
+            if(stables.contains(new WrapPosition(p.row,p.column+1)) &&
+                    stables.contains(new WrapPosition(p.row+1, p.column))){
+                if(stables.contains(new WrapPosition(p.row -1, p.column +1)) ||
+                        stables.contains(new WrapPosition(p.row +1, p.column -1))){
                     return true;
                 }
             }
@@ -108,7 +180,7 @@ public class Mitbot extends Agent{
         return false;
     }
 
-    private boolean isCorner (Position p) {
+    private boolean isCorner (WrapPosition p) {
         return ((p.row == 0 && p.column == 0)
                 || (p.row == 0 && p.column == size -1)
                 || (p.row == size - 1 && p.column == 0)

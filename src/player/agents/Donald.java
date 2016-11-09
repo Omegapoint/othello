@@ -11,9 +11,9 @@ import java.util.LinkedList;
 
 public class Donald extends Agent {
 
-    private static final int ITERATIONS = 0;
+    private static final int ITERATIONS = 4;
     private Color color;
-    private HashMap<Position, Integer> val;
+
 
     public Donald(Color color) {
         super(color);
@@ -22,15 +22,16 @@ public class Donald extends Agent {
 
     @Override
     public void newGame() {
-        val = new HashMap<>();
+
     }
 
     @Override
     public Position nextMove(GameBoard board, LinkedList<Position> currentLegalPositions) throws InterruptedException {
+        HashMap<Position, Integer> val = new HashMap<>();
         for(Position position : currentLegalPositions) {
             GameBoard copy = board.copyBoard();
             copy.placeDisk(this.color, position);
-            int ret = recursive(copy, 0);
+            int ret = recursive(copy, 1);
             val.put(position, ret);
         }
 
@@ -55,13 +56,14 @@ public class Donald extends Agent {
             turn = this.color == Color.WHITE ? Color.BLACK : Color.WHITE;
         }
 
-        if(iteration == ITERATIONS) {
+        if(iteration > ITERATIONS) {
             return evalGameBoard(board);
         } else {
+            iteration += 1;
             for (Position position : board.getAllLegalPositions(turn)) {
                 GameBoard copy = board.copyBoard();
                 copy.placeDisk(turn, position);
-                int dist = recursive(copy, iteration++);
+                int dist = recursive(copy, iteration);
                 returnValues.add(dist);
             }
         }
@@ -84,6 +86,17 @@ public class Donald extends Agent {
                 }
             }
         }
+
+        if(matrix[0][0] == this.color)
+            val += 10;
+        if(matrix[0][board.BOARD_SIZE - 1] == this.color)
+            val += 10;
+        if(matrix[board.BOARD_SIZE - 1][0] == this.color)
+            val += 10;
+        if(matrix[board.BOARD_SIZE - 1][board.BOARD_SIZE - 1] == this.color)
+            val += 10;
+
+        val += board.getAllLegalPositions(this.color).size();
         return val;
     }
 
