@@ -47,7 +47,8 @@ public class GUIWindow {
     private String whiteString = null;
     private String blackString = null;
     private JButton clearButton;
-
+    private JComboBox whitePlayers;
+    private JComboBox blackPlayers;
 
     private Agent newPlayer(String name, Color color) {
         return playerFactory.newPlayer(name, color);
@@ -100,7 +101,7 @@ public class GUIWindow {
         });
         panel.add(actionButton);
 
-        JComboBox blackPlayers = new JComboBox();
+        blackPlayers = new JComboBox();
         blackString = playerFactory.availablePlayers[0];
 
         blackPlayers.addActionListener(new ActionListener() {
@@ -122,7 +123,7 @@ public class GUIWindow {
         blackTextLabel.setFont(new Font("Verdana", 0, 12));
         JTextField whiteText = new JTextField(WHITE.toString());
 
-        JComboBox whitePlayers = new JComboBox();
+        whitePlayers = new JComboBox();
         whiteString = playerFactory.availablePlayers[0];
         whitePlayers.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -203,19 +204,28 @@ public class GUIWindow {
             playerMenu.add(jCheckBoxMenuItem);
         }
 
-        final JButton button = new JButton();
-        button.setAction(new AbstractAction("Choose Agents") {
+        final JButton chooseAgent = new JButton();
+        chooseAgent.setAction(new AbstractAction("Choose Agents") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                playerMenu.show(button, 0, button.getHeight());
+                playerMenu.show(chooseAgent, 0, chooseAgent.getHeight());
 
+            }
+        });
+
+        final JButton nextGame = new JButton("Next Game");
+        nextGame.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setNextGame();
             }
         });
 
         JLabel textLabel = new JLabel("Player Selection");
         textLabel.setFont(new Font("Verdana", 1, 12));;
         panel.add(textLabel);
-        panel.add(button);
+        panel.add(chooseAgent);
+        panel.add(nextGame);
         panel.add(whiteTextLabel);
         panel.add(whitePlayers);
         panel.add(blackTextLabel);
@@ -250,6 +260,26 @@ public class GUIWindow {
         }
     }
 
+    private void setNextGame() {
+        if (!Objects.isNull(gameSchedule)) {
+            Match nextMatch = gameSchedule.getFirstEmptySlot();
+            if (nextMatch == null) { // When all games are finished
+                return;
+            }
+            whiteString = nextMatch.whitePlayer;
+            blackString = nextMatch.blackPlayer;
+            String[] currentPlayers = parseList(availablePlayers);
+            for (int i = 0; i < currentPlayers.length; i++) {
+                String thisPlayer = currentPlayers[i];
+                if (thisPlayer.equals(whiteString)) {
+                     whitePlayers.setSelectedIndex(i);
+                }
+                if (thisPlayer.equals(blackString)) {
+                     blackPlayers.setSelectedIndex(i);
+                }
+            }
+        }
+    }
 
     private void turn() {
         Position m = game.nextTurn();

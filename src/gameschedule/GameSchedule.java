@@ -94,7 +94,14 @@ public class GameSchedule {
         return matchList;
     }
 
-
+    public Match getFirstEmptySlot() {
+        for (Match m : getSortedScores()) {
+            if (m.whiteScore.equals("-") && m.blackScore.equals("-")) {
+                return m;
+            }
+        }
+        return null;
+    }
 
     public void clear() {
         this.games = new HashMap<String, Match>();
